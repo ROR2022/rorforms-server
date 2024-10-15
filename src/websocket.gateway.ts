@@ -9,9 +9,12 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ConfigService } from '@nestjs/config';
 
+const myClientUrl = new ConfigService().get('CLIENT_URL');
+console.log('Client URL:', myClientUrl);
+
 @WebSocketGateway({
   cors: {
-    origin: new ConfigService().get('CLIENT_URL'),
+    origin: myClientUrl,
     methods: ['GET', 'POST'],
     credentials: true,
   },
