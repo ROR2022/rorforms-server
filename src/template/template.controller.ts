@@ -54,6 +54,11 @@ export class TemplateController {
     return result;
   }
 
+  @Get('tag/:tag')
+  findByTag(@Param('tag') tag: string){
+    return this.templateService.searchByTag(`#${tag}`);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.templateService.findOne(id);

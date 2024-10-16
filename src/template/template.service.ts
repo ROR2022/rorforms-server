@@ -95,13 +95,18 @@ export class TemplateService {
 
   async search(search: string) {
     //return `This action returns all template`;
+
+    const catKey = categories.find(cat => cat.label.toLowerCase().startsWith(search.toLowerCase()))?.key || '' ;
+
     const tempTemplates= await this.templateModel.find({
       $or: [
         { title: { $regex: search, $options: 'i' } },
         { description: { $regex: search, $options: 'i' } },
+        { tags: { $regex: search, $options: 'i' } },
+        { category: { $regex: catKey, $options: 'i' } },
       ],
     });
-
+   console.log('first filter tempTemplates:', tempTemplates);
     const finalTemplates = [...tempTemplates];
     const tempListTemplatesIdsInQuestions = await this.questionService.search(search);
     const tempTemplatesIds= tempTemplates.map((template) => String(template._id));
@@ -114,6 +119,13 @@ export class TemplateService {
     const resultFilter = result.filter((template) => template.isForm !== true);
     
     return resultFilter;
+  }
+
+  async searchByTag(tag: string) {
+    //return `This action returns all template`;
+    const tempTemplates= await this.templateModel.find({ tags: { $regex: tag, $options: 'i' } });
+   
+    return tempTemplates;
   }
 
   async filter(filterTemplateDto: IFilter) {

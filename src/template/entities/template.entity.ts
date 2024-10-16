@@ -24,6 +24,9 @@ export class Template {
   @Prop({ type: [mongo.ObjectId], ref: 'Question' })
   questions: string[];
 
+  @Prop({ type: [String] })
+  tags: string[];
+
   @Prop()
   isForm: boolean;
 
