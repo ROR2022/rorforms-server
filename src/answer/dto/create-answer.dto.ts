@@ -11,4 +11,5 @@ export class CreateAnswerDto {
   userEmail: string;
   userName: string;
   userId: string;
+  isValid: boolean;
 }

@@ -47,8 +47,17 @@ export class TemplateService {
 
   async copyTemplate(id: string, userId: string, newForm?: boolean) {
     const dataTemplateOrigin = await this.templateModel.findById(id).exec();
-    const { title, imageUrl, description, category, questions, isPublic, usersGuest, isForm } =
-      dataTemplateOrigin;
+    const {
+      title,
+      imageUrl,
+      description,
+      category,
+      questions,
+      isPublic,
+      usersGuest,
+      isForm,
+      tags,
+    } = dataTemplateOrigin;
     const newTemplate = new this.templateModel({
       author: userId,
       title,
@@ -57,7 +66,8 @@ export class TemplateService {
       category,
       isPublic,
       usersGuest,
-      isForm: newForm ? newForm : (isForm || false),
+      tags,
+      isForm: newForm ? newForm : isForm || false,
     });
     newTemplate.save();
     const listQuestions = [];
@@ -78,27 +88,40 @@ export class TemplateService {
       listQuestions.push(newQuestion);
     }
     const orderQuestions = listQuestions.map((question) => question._id);
-    const dataNewTemplate= await this.templateModel.findByIdAndUpdate(newTemplate._id, { questions: orderQuestions }, { new: true });
+    const dataNewTemplate = await this.templateModel.findByIdAndUpdate(
+      newTemplate._id,
+      { questions: orderQuestions },
+      { new: true },
+    );
 
     return { template: dataNewTemplate, questions: listQuestions };
   }
 
   findAll() {
     //return `This action returns all template`;
-    return this.templateModel.find({isForm:{$nin:[true]}}).exec();
+    return this.templateModel
+      .find({ isForm: { $nin: [true] } })
+      .sort({ createdAt: -1 })
+      .exec();
   }
 
   findAllForms() {
     //return `This action returns all template`;
-    return this.templateModel.find({isForm:{$in:[true]}}).exec();
+    return this.templateModel
+      .find({ isForm: { $in: [true] } })
+      .sort({ createdAt: -1 })
+      .exec();
   }
 
   async search(search: string) {
     //return `This action returns all template`;
 
-    const catKey = categories.find(cat => cat.label.toLowerCase().startsWith(search.toLowerCase()))?.key || '' ;
+    const catKey =
+      categories.find((cat) =>
+        cat.label.toLowerCase().startsWith(search.toLowerCase()),
+      )?.key || '';
 
-    const tempTemplates= await this.templateModel.find({
+    const tempTemplates = await this.templateModel.find({
       $or: [
         { title: { $regex: search, $options: 'i' } },
         { description: { $regex: search, $options: 'i' } },
@@ -106,26 +129,47 @@ export class TemplateService {
         { category: { $regex: catKey, $options: 'i' } },
       ],
     });
-   console.log('first filter tempTemplates:', tempTemplates);
+    console.log('first filter tempTemplates:', tempTemplates);
     const finalTemplates = [...tempTemplates];
-    const tempListTemplatesIdsInQuestions = await this.questionService.search(search);
-    const tempTemplatesIds= tempTemplates.map((template) => String(template._id));
-    const notRepeatedTemplates = tempListTemplatesIdsInQuestions.filter((templateId) => !tempTemplatesIds.includes(templateId));
+    const tempListTemplatesIdsInQuestions =
+      await this.questionService.search(search);
+    const tempTemplatesIds = tempTemplates.map((template) =>
+      String(template._id),
+    );
+    const notRepeatedTemplates = tempListTemplatesIdsInQuestions.filter(
+      (templateId) => !tempTemplatesIds.includes(templateId),
+    );
 
-    const addTemplates = await this.templateModel.find({ _id: { $in: notRepeatedTemplates } }).exec();
+    const addTemplates = await this.templateModel
+      .find({ _id: { $in: notRepeatedTemplates } })
+      .sort({ createdAt: -1 })
+      .exec();
 
     finalTemplates.push(...addTemplates);
-    const result= finalTemplates as Template[];
+    const result = finalTemplates as Template[];
     const resultFilter = result.filter((template) => template.isForm !== true);
-    
+
     return resultFilter;
   }
 
   async searchByTag(tag: string) {
     //return `This action returns all template`;
-    const tempTemplates= await this.templateModel.find({ tags: { $regex: tag, $options: 'i' } });
-   
+    const tempTemplates = await this.templateModel
+      .find({
+        tags: { $regex: tag, $options: 'i' },
+      })
+      .sort({ createdAt: -1 })
+      .exec();
+
     return tempTemplates;
+  }
+
+  async getDistinctTags() {
+    const tags = await this.templateModel
+      .distinct('tags')
+      .sort({ createdAt: -1 })
+      .exec();
+    return tags;
   }
 
   async filter(filterTemplateDto: IFilter) {
@@ -133,14 +177,14 @@ export class TemplateService {
     //return this.templateModel.find(filterTemplateDto).exec();
     let query = {};
     const { isForms } = filterTemplateDto;
-    if (isForms===true) {
+    if (isForms === true) {
       query = { ...query, isForm: { $in: [true] } };
     }
     if (filterTemplateDto.owner.key === 'owner1') {
-      query = {...query, author: filterTemplateDto.userId };
+      query = { ...query, author: filterTemplateDto.userId };
     }
     if (filterTemplateDto.owner.key === 'owner2') {
-      query = {...query, author: { $ne: filterTemplateDto.userId } };
+      query = { ...query, author: { $ne: filterTemplateDto.userId } };
     }
     if (filterTemplateDto.category.key !== '') {
       query = { ...query, category: filterTemplateDto.category.key };
@@ -155,7 +199,10 @@ export class TemplateService {
       };
     }
     query = { ...query, isForm: { $nin: [true] } };
-    const resultFilter = await this.templateModel.find(query).exec();
+    const resultFilter = await this.templateModel
+      .find(query)
+      .sort({ createdAt: -1 })
+      .exec();
     return [...resultFilter];
   }
 

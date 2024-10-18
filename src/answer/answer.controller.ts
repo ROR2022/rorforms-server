@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { AnswerService } from './answer.service';
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { UpdateAnswerDto } from './dto/update-answer.dto';
@@ -24,6 +24,14 @@ export class AnswerController {
   @Get()
   findAll() {
     return this.answerService.findAll();
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('byAuthor')
+  findByAuthor(@Req() req: any) {
+    const user = req.user;
+    //console.log('findByAuthor user:', user);
+    return this.answerService.findByAuthor(user.id);
   }
 
   @Get(':id')

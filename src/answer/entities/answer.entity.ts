@@ -23,6 +23,9 @@ export class Answer {
   userId: string;
 
   @Prop()
+  isValid: boolean;
+
+  @Prop()
   createdAt: Date;
 
   @Prop()

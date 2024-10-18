@@ -6,11 +6,10 @@ import { Answer } from './entities/answer.entity';
 
 @Injectable()
 export class AnswerService {
-
   constructor(
     //eslint-disable-next-line
-     @Inject('ANSWER_MODEL')
-     private answerModel: Model<Answer>,
+    @Inject('ANSWER_MODEL')
+    private answerModel: Model<Answer>,
   ) {}
 
   create(createAnswerDto: CreateAnswerDto) {
@@ -21,7 +20,20 @@ export class AnswerService {
 
   findAll() {
     //return `This action returns all answer`;
-    return this.answerModel.find().populate(['templateId', 'userId']).exec();
+    return this.answerModel
+      .find()
+      .populate(['templateId', 'userId'])
+      .sort({ createdAt: -1 })
+      .exec();
+  }
+
+  findByAuthor(userId: string) {
+    //return `This action returns all answer for user #${userId}`;
+    return this.answerModel
+      .find({ userId })
+      .populate(['templateId', 'userId'])
+      .sort({ createdAt: -1 })
+      .exec();
   }
 
   findOne(id: string) {
@@ -31,13 +43,14 @@ export class AnswerService {
 
   findByTemplateId(templateId: string) {
     //return `This action returns all answer for template #${templateId}`;
-    return this.answerModel.find({ templateId }).exec();
+    return this.answerModel.find({ templateId }).sort({ createdAt: -1 }).exec();
   }
 
   update(id: string, updateAnswerDto: UpdateAnswerDto) {
     //return `This action updates a #${id} answer`;
-    return this.answerModel
-      .findByIdAndUpdate(id, updateAnswerDto, { new: true });
+    return this.answerModel.findByIdAndUpdate(id, updateAnswerDto, {
+      new: true,
+    });
   }
 
   remove(id: string) {
