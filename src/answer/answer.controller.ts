@@ -34,6 +34,12 @@ export class AnswerController {
     return this.answerService.findByAuthor(user.id);
   }
 
+  @Get('deleteAll')
+  deleteAll() {
+    console.log('deleteAll Answers controller...');
+    return this.answerService.deleteAll();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.answerService.findOne(id);
@@ -54,4 +60,6 @@ export class AnswerController {
   remove(@Param('id') id: string) {
     return this.answerService.remove(id);
   }
+
+  
 }

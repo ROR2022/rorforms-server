@@ -9,4 +9,5 @@ export class CreateTemplateDto {
   isForm: boolean;
   isPublic: boolean;
   usersGuest: string[];
+  fatherId: string;
 }

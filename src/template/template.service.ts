@@ -67,6 +67,7 @@ export class TemplateService {
       isPublic,
       usersGuest,
       tags,
+      fatherId: newForm === true ? id : "",
       isForm: newForm ? newForm : isForm || false,
     });
     newTemplate.save();
@@ -229,5 +230,9 @@ export class TemplateService {
   remove(id: string) {
     //return `This action removes a #${id} template`;
     return this.templateModel.findByIdAndDelete(id).exec();
+  }
+
+  async deleteAllForms() {
+    return this.templateModel.deleteMany({ isForm: { $in: [true] } }).exec();
   }
 }

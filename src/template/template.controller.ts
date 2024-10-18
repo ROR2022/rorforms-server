@@ -47,6 +47,11 @@ export class TemplateController {
     return this.templateService.findAllForms();
   }
 
+  @Get('deleteAllForms')
+  deleteAllForms(){
+    return this.templateService.deleteAllForms();
+  }
+
   @Get('search/:search')
  async search(@Param('search') search: string){
     const result = await this.templateService.search(search);
@@ -86,4 +91,6 @@ export class TemplateController {
   remove(@Param('id') id: string) {
     return this.templateService.remove(id);
   }
+
+  
 }

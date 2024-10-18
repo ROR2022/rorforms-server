@@ -57,4 +57,10 @@ export class AnswerService {
     //return `This action removes a #${id} answer`;
     return this.answerModel.findByIdAndDelete(id).exec();
   }
+
+  deleteAll() {
+    //return `This action removes all answers`;
+    return this.answerModel.deleteMany({}).exec();
+    //return { message: 'This action removes all answers' };
+  }
 }

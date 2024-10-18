@@ -36,6 +36,9 @@ export class Template {
   @Prop({ type: [mongo.ObjectId], ref: 'User' })
   usersGuest: string[];
 
+  @Prop({ type: mongo.ObjectId, ref: 'Template' })
+  fatherId: string;
+
   @Prop()
   createdAt: Date;
 
