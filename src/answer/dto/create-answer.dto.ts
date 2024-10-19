@@ -7,6 +7,7 @@ export interface IAnswer {
 
 export class CreateAnswerDto {
   templateId: string;
+  fatherId: string;
   answers: Array<IAnswer>;
   userEmail: string;
   userName: string;

@@ -10,6 +10,9 @@ export class Answer {
   @Prop({ required: true, type: mongo.ObjectId, ref: 'Template' })
   templateId: string;
 
+  @Prop({ type: mongo.ObjectId, ref: 'Template' })
+  fatherId: string;
+
   @Prop()
   answers: Array<IAnswer>;
 
