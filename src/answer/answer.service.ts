@@ -63,4 +63,8 @@ export class AnswerService {
     return this.answerModel.deleteMany({}).exec();
     //return { message: 'This action removes all answers' };
   }
+
+  getAnswersByListTemplateId(listTemplateId: string[]) {
+    return this.answerModel.find({ fatherId: { $in: listTemplateId } }).exec();
+  }
 }

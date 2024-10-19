@@ -14,5 +14,6 @@ import { ConfigService } from '@nestjs/config';
     ...answerProviders,
     ConfigService,
   ],
+  exports: [AnswerService],
 })
 export class AnswerModule {}

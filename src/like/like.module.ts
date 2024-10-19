@@ -7,5 +7,6 @@ import { databaseProviders } from 'src/database/database.providers';
 @Module({
   controllers: [LikeController],
   providers: [LikeService, ...likeProviders, ...databaseProviders],
+  exports: [LikeService],
 })
 export class LikeModule {}

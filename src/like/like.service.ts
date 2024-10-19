@@ -42,4 +42,8 @@ export class LikeService {
     //return `This action removes a #${id} like`;
     return this.likeModel.findByIdAndDelete(id).exec();
   }
+
+  getLikesByListTemplateId(listTemplateId: string[]){
+    return this.likeModel.find({templateId: {$in: listTemplateId}}).exec();
+  }
 }

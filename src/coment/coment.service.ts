@@ -42,4 +42,8 @@ export class ComentService {
     //return `This action removes a #${id} coment`;
     return this.comentModel.findByIdAndDelete(id).exec();
   }
+
+  getComentsByListTemplateId(listTemplateId: string[]){
+    return this.comentModel.find({templateId: {$in: listTemplateId}}).exec();
+  }
 }

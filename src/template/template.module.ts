@@ -5,6 +5,12 @@ import { databaseProviders } from 'src/database/database.providers';
 import { templateProviders } from './template.providers';
 import { questionProviders } from 'src/question/question.providers';
 import { QuestionService } from 'src/question/question.service';
+import { likeProviders } from 'src/like/like.providers';
+import { comentProviders } from 'src/coment/coment.providers';
+import { LikeService } from 'src/like/like.service';
+import { ComentService } from 'src/coment/coment.service';
+import { answerProviders } from 'src/answer/answer.providers';
+import { AnswerService } from 'src/answer/answer.service';
 
 @Module({
   controllers: [TemplateController],
@@ -13,6 +19,12 @@ import { QuestionService } from 'src/question/question.service';
     ...databaseProviders,
     ...templateProviders,
     ...questionProviders,
+    ...likeProviders,
+    ...comentProviders,
+    ...answerProviders,
+    AnswerService,
+    LikeService,
+    ComentService,
     QuestionService,
   ],
 })
