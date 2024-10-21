@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Query } from '@nestjs/common';
 import { IFilter, TemplateService } from './template.service';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
@@ -38,13 +38,19 @@ export class TemplateController {
   }
 
   @Get()
-  findAll() {
-    return this.templateService.findAll();
+  findAll(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    return this.templateService.findAll(page || 1, limit || 10);
   }
 
   @Get('allForms')
-  findAllForms(){
-    return this.templateService.findAllForms();
+  findAllForms(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ){
+    return this.templateService.findAllForms(page || 1, limit || 10);
   }
 
   @Get('deleteAllForms')

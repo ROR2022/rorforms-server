@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CreateTemplateDto } from './dto/create-template.dto';
 import { UpdateTemplateDto } from './dto/update-template.dto';
-import { Model } from 'mongoose';
+import { PaginateModel } from 'mongoose';
 import { Template } from './entities/template.entity';
 import { QuestionService } from 'src/question/question.service';
 import { AnswerService } from 'src/answer/answer.service';
@@ -35,9 +35,9 @@ export const owners = [
 ];
 
 export const topFive = [
-  { key: "top1", label: "More Filled Forms" },
-  { key: "top2", label: "More Likes" },
-  { key: "top3", label: "More Comments" },
+  { key: 'top1', label: 'More Filled Forms' },
+  { key: 'top2', label: 'More Likes' },
+  { key: 'top3', label: 'More Comments' },
 ];
 
 @Injectable()
@@ -45,7 +45,7 @@ export class TemplateService {
   constructor(
     //eslint-disable-next-line prettier/prettier
     @Inject('TEMPLATE_MODEL')
-    private templateModel: Model<Template>,
+    private templateModel: PaginateModel<Template>,
     private readonly questionService: QuestionService,
     private readonly answerService: AnswerService,
     private readonly likeService: LikeService,
@@ -80,7 +80,7 @@ export class TemplateService {
       isPublic,
       usersGuest,
       tags,
-      fatherId: newForm === true ? id : "",
+      fatherId: newForm === true ? id : '',
       isForm: newForm ? newForm : isForm || false,
     });
     newTemplate.save();
@@ -111,20 +111,39 @@ export class TemplateService {
     return { template: dataNewTemplate, questions: listQuestions };
   }
 
-  findAll() {
+  findAll(page: number, limit: number) {
     //return `This action returns all template`;
-    return this.templateModel
+    const options = {
+      page: page || 1,
+      limit: limit || 10,
+      sort: { createdAt: -1 },
+      lean: true,
+    };
+    const query = { isForm: { $nin: [true] } };
+    return this.templateModel.paginate(query, options);
+
+    /* return this.templateModel
       .find({ isForm: { $nin: [true] } })
       .sort({ createdAt: -1 })
-      .exec();
+      .exec(); */
   }
 
-  findAllForms() {
+  findAllForms(page: number, limit: number) {
     //return `This action returns all template`;
-    return this.templateModel
+
+    const options = {
+      page: page || 1,
+      limit: limit || 10,
+      sort: { createdAt: -1 },
+      lean: true,
+    };
+    const query = { isForm: { $in: [true] } };
+    return this.templateModel.paginate(query, options);
+
+    /* return this.templateModel
       .find({ isForm: { $in: [true] } })
       .sort({ createdAt: -1 })
-      .exec();
+      .exec(); */
   }
 
   async search(search: string) {
@@ -194,7 +213,7 @@ export class TemplateService {
     //console.log('filterTemplateDto:', filterTemplateDto);
     if (isForms === true) {
       query = { ...query, isForm: { $in: [true] } };
-    }else{
+    } else {
       query = { ...query, isForm: { $nin: [true] } };
     }
     if (filterTemplateDto.owner.key === 'owner1') {
@@ -216,58 +235,84 @@ export class TemplateService {
       };
     }
     //query = { ...query, isForm: { $nin: [true] } };
-    const resultFilter:any = await this.templateModel
+    const resultFilter: any = await this.templateModel
       .find(query)
       .sort({ createdAt: -1 })
       .exec();
 
-      const resultFilterIds = resultFilter.map((template) => String(template._id));
-      let finalResultFilter = [...resultFilter];
-      if (filterTemplateDto.top.key === 'top1') {
-        const listAnswersByListTemplateId = await this.answerService.getAnswersByListTemplateId(resultFilterIds);
-        //console.log('listAnswersByListTemplateId:', listAnswersByListTemplateId); 
-        const objTemplateIdAnswers = listAnswersByListTemplateId.reduce((acc, answer) => {
+    const resultFilterIds = resultFilter.map((template) =>
+      String(template._id),
+    );
+    let finalResultFilter = [...resultFilter];
+    if (filterTemplateDto.top.key === 'top1') {
+      const listAnswersByListTemplateId =
+        await this.answerService.getAnswersByListTemplateId(resultFilterIds);
+      //console.log('listAnswersByListTemplateId:', listAnswersByListTemplateId);
+      const objTemplateIdAnswers = listAnswersByListTemplateId.reduce(
+        (acc, answer) => {
           if (!acc[answer.fatherId]) {
             acc[answer.fatherId] = 0;
           }
           acc[answer.fatherId]++;
           return acc;
-        }, {});
-        //get the top 5 with more answers from objTemplateIdAnswers
-      const topFiveAnswers = Object.keys(objTemplateIdAnswers).sort((a, b) => objTemplateIdAnswers[b] - objTemplateIdAnswers[a]).slice(0, 5);
+        },
+        {},
+      );
+      //get the top 5 with more answers from objTemplateIdAnswers
+      const topFiveAnswers = Object.keys(objTemplateIdAnswers)
+        .sort((a, b) => objTemplateIdAnswers[b] - objTemplateIdAnswers[a])
+        .slice(0, 5);
       //console.log('topFiveAnswers:', topFiveAnswers);
-        finalResultFilter = topFiveAnswers.map((templateId) => resultFilter.find((template) => String(template._id) === templateId));
-        //console.log('finalResultFilter:', finalResultFilter);
-      }
+      finalResultFilter = topFiveAnswers.map((templateId) =>
+        resultFilter.find((template) => String(template._id) === templateId),
+      );
+      //console.log('finalResultFilter:', finalResultFilter);
+    }
 
-      if (filterTemplateDto.top.key === 'top2') {
-        const listLikesByListTemplateId = await this.likeService.getLikesByListTemplateId(resultFilterIds);  
-        const objTemplateIdLikes = listLikesByListTemplateId.reduce((acc, like) => {
+    if (filterTemplateDto.top.key === 'top2') {
+      const listLikesByListTemplateId =
+        await this.likeService.getLikesByListTemplateId(resultFilterIds);
+      const objTemplateIdLikes = listLikesByListTemplateId.reduce(
+        (acc, like) => {
           if (!acc[like.templateId]) {
             acc[like.templateId] = 0;
           }
           acc[like.templateId]++;
           return acc;
-        }, {});
-        //get the top 5 with more likes from objTemplateIdLikes
-      const topFiveLikes = Object.keys(objTemplateIdLikes).sort((a, b) => objTemplateIdLikes[b] - objTemplateIdLikes[a]).slice(0, 5);
-        finalResultFilter = topFiveLikes.map((templateId) => resultFilter.find((template) => String(template._id) === templateId));
-      }
+        },
+        {},
+      );
+      //get the top 5 with more likes from objTemplateIdLikes
+      const topFiveLikes = Object.keys(objTemplateIdLikes)
+        .sort((a, b) => objTemplateIdLikes[b] - objTemplateIdLikes[a])
+        .slice(0, 5);
+      finalResultFilter = topFiveLikes.map((templateId) =>
+        resultFilter.find((template) => String(template._id) === templateId),
+      );
+    }
 
-      if (filterTemplateDto.top.key === 'top3') {
-        const listCommentsByListTemplateId = await this.comentService.getComentsByListTemplateId(resultFilterIds);
-        const objTemplateIdComments = listCommentsByListTemplateId.reduce((acc, comment) => {
+    if (filterTemplateDto.top.key === 'top3') {
+      const listCommentsByListTemplateId =
+        await this.comentService.getComentsByListTemplateId(resultFilterIds);
+      const objTemplateIdComments = listCommentsByListTemplateId.reduce(
+        (acc, comment) => {
           if (!acc[comment.templateId]) {
             acc[comment.templateId] = 0;
           }
           acc[comment.templateId]++;
           return acc;
-        }, {});
-        //get the top 5 with more comments from objTemplateIdComments
-      const topFiveComments = Object.keys(objTemplateIdComments).sort((a, b) => objTemplateIdComments[b] - objTemplateIdComments[a]).slice(0, 5);
-        finalResultFilter = topFiveComments.map((templateId) => resultFilter.find((template) => String(template._id) === templateId));
-      }
-      
+        },
+        {},
+      );
+      //get the top 5 with more comments from objTemplateIdComments
+      const topFiveComments = Object.keys(objTemplateIdComments)
+        .sort((a, b) => objTemplateIdComments[b] - objTemplateIdComments[a])
+        .slice(0, 5);
+      finalResultFilter = topFiveComments.map((templateId) =>
+        resultFilter.find((template) => String(template._id) === templateId),
+      );
+    }
+
     return [...finalResultFilter];
   }
 
