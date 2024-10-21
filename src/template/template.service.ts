@@ -250,10 +250,10 @@ export class TemplateService {
       //console.log('listAnswersByListTemplateId:', listAnswersByListTemplateId);
       const objTemplateIdAnswers = listAnswersByListTemplateId.reduce(
         (acc, answer) => {
-          if (!acc[isForms ? answer.fatherId : answer.templateId]) {
-            acc[isForms ? answer.fatherId : answer.templateId] = 0;
+          if (!acc[isForms===true ? answer.templateId : answer.fatherId]) {
+            acc[isForms===true ? answer.templateId : answer.fatherId] = 0;
           }
-          acc[isForms ? answer.fatherId : answer.templateId]++;
+          acc[isForms===true ? answer.templateId : answer.fatherId]++;
           return acc;
         },
         {},
