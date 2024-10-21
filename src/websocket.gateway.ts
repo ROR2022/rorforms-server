@@ -83,6 +83,12 @@ export class WebSocketAppGateway
     this.server.emit('newClients', this.myClients);
   }
 
+  @SubscribeMessage('getMyClients')
+  handleGetMyClients(client: Socket): void {
+    //console.log('Get My Clients:', payload);
+    this.server.to(client.id).emit('newClients', this.myClients);
+  }
+
   @SubscribeMessage('logout')
   handleLogoutClient(client: Socket, payload: string): void {
     console.log('Logout:', payload);
