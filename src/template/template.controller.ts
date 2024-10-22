@@ -60,6 +60,7 @@ export class TemplateController {
 
   @Get('search/:search')
  async search(@Param('search') search: string){
+    //console.log('controller search:', search);
     const result = await this.templateService.search(search);
     //console.log('controller result search:', result?.length);
     return result;

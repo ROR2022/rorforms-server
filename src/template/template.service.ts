@@ -149,29 +149,37 @@ export class TemplateService {
   async search(search: string) {
     //return `This action returns all template`;
 
+    //console.log('service search:', search);
     const catKey =
       categories.find((cat) =>
         cat.label.toLowerCase().startsWith(search.toLowerCase()),
-      )?.key || '';
+      )?.key || ' ';
+
+      //console.log('service search catKey:', catKey);
 
     const tempTemplates = await this.templateModel.find({
       $or: [
         { title: { $regex: search, $options: 'i' } },
         { description: { $regex: search, $options: 'i' } },
-        { tags: { $regex: search, $options: 'i' } },
+        { tags: { $regex: `#${search}`, $options: 'i' } },
         { category: { $regex: catKey, $options: 'i' } },
       ],
     });
-    console.log('first filter tempTemplates:', tempTemplates);
+    //console.log('first filter tempTemplates:', tempTemplates.length);
     const finalTemplates = [...tempTemplates];
     const tempListTemplatesIdsInQuestions =
       await this.questionService.search(search);
     const tempTemplatesIds = tempTemplates.map((template) =>
       String(template._id),
     );
+
+    //console.log('tempListTemplatesIdsInQuestions:', tempListTemplatesIdsInQuestions.length);
+
     const notRepeatedTemplates = tempListTemplatesIdsInQuestions.filter(
       (templateId) => !tempTemplatesIds.includes(templateId),
     );
+
+    //console.log('notRepeatedTemplates:', notRepeatedTemplates.length);
 
     const addTemplates = await this.templateModel
       .find({ _id: { $in: notRepeatedTemplates } })
@@ -181,6 +189,8 @@ export class TemplateService {
     finalTemplates.push(...addTemplates);
     const result = finalTemplates as Template[];
     const resultFilter = result.filter((template) => template.isForm !== true);
+
+    //console.log('resultFilter:', resultFilter.length);
 
     return resultFilter;
   }
