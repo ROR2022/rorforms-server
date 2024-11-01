@@ -21,6 +21,8 @@ import { FormModule } from './form/form.module';
 import { AnswerModule } from './answer/answer.module';
 import { LikeModule } from './like/like.module';
 import { ComentModule } from './coment/coment.module';
+import { SalesforceModule } from './salesforce/salesforce.module';
+import { JsForceModule } from '@ntegral/nestjs-force';
 
 @Module({
   imports: [
@@ -28,6 +30,19 @@ import { ComentModule } from './coment/coment.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+    }),
+    JsForceModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (cfg: ConfigService) => ({
+        username: cfg.get('SF_USERNAME'),
+        password: cfg.get('SF_PASSWORD'),
+        security_token: cfg.get('SF_SECURITY_TOKEN'),
+        apiVersion: 'v62.0',
+        options: {
+          loginUrl: cfg.get('SF_LOGIN_URL'),
+        },
+      }),
     }),
     MulterModule.register({
       dest: './uploads',
@@ -72,6 +87,7 @@ import { ComentModule } from './coment/coment.module';
     AnswerModule,
     LikeModule,
     ComentModule,
+    SalesforceModule,
   ],
   controllers: [AppController],
   providers: [
