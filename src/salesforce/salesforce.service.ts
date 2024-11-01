@@ -3,6 +3,7 @@ import { InjectJsForce } from '@ntegral/nestjs-force';
 import { Client } from '@ntegral/nestjs-force';
 import * as jsforce from 'jsforce';
 import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
 //import axios from 'axios';
 
 /* const myDomainName =
@@ -87,13 +88,24 @@ export class SalesforceService {
     }
   }
 
-  async createAccount(accountData: any) {
+  async createAccount(dataBody: any) {
+    const SF_ENDPOINT = this.configService.get('SF_ENDPOINT');
+    const url = `${SF_ENDPOINT}/services/data/v62.0/sobjects/Account`;
+    console.log('url:', url);
+    console.log('dataBody:', dataBody);
+    const { Name, Email, accessToken } = dataBody;
+    const accountData = {
+        Name,
+        Email,
+        };
     try {
-      const res = await this.client.conn.sobject('Account').create(accountData);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+      const res = await axios.post(url, accountData);
       console.log('Created Account:', res);
       return res;
     } catch (error) {
       console.error('Error creating account:', error);
+      return error;
     }
   }
 }

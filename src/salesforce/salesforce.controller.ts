@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req } from '@nestjs/common';
 import { SalesforceService } from './salesforce.service';
 
 @Controller('salesforce')
@@ -15,5 +15,11 @@ export class SalesforceController {
     async test(@Req() req:any) {
         console.log('req:', req);
       //return this.salesforceService.testAuth();
+    }
+
+    @Post('createAccount')
+    async createAccount(@Body() body: any) {
+        //console.log('req:', req);
+      return this.salesforceService.createAccount(body);
     }
 }
