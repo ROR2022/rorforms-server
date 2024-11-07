@@ -23,6 +23,7 @@ import { LikeModule } from './like/like.module';
 import { ComentModule } from './coment/coment.module';
 import { SalesforceModule } from './salesforce/salesforce.module';
 import { JsForceModule } from '@ntegral/nestjs-force';
+import { IssueModule } from './issue/issue.module';
 
 @Module({
   imports: [
@@ -88,6 +89,7 @@ import { JsForceModule } from '@ntegral/nestjs-force';
     LikeModule,
     ComentModule,
     SalesforceModule,
+    IssueModule,
   ],
   controllers: [AppController],
   providers: [
